@@ -1,23 +1,21 @@
-import { App } from "@slack/bolt";
+import { App, LogLevel } from "@slack/bolt";
 import { WebClient } from "@slack/web-api"
 
-const userClient = new WebClient(Bun.env.SLACK_TOKEN);
+const userClient = new WebClient(Bun.env.SLACK_USER_TOKEN);
 
 const app = new App({
-    token: process.env.SLACK_TOKEN,
+    token: process.env.SLACK_USER_TOKEN,
     appToken: process.env.SLACK_APP_TOKEN,
     socketMode: true,
+    logLevel: LogLevel.DEBUG,
 });
 
-console.log("Hello via Bun!");
-
 app.message(async (event) => {
+    console.log("message event");
+    console.dir(event.payload, { depth: null });
     if (event.payload.subtype) return;
     if (event.payload.user !== 'U08STAQPGUR') return;
-    await userClient.chat.postMessage({
-        channel: event.payload.channel,
-        text: "wowee cool message"
-    });
+    await event.say("wow what a cool message");
 });
 
 await app.start();
