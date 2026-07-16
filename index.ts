@@ -1,5 +1,10 @@
-import { App, LogLevel } from "@slack/bolt";
+import { App, LogLevel, type BlockButtonAction } from "@slack/bolt";
 import { WebClient } from "@slack/web-api"
+
+import { TicTacToe } from "./games/ticTacToe";
+import { Minesweeper } from "./games/minesweeper";
+import { NumberGuesser } from "./games/numberGuesser";
+import { Wordle } from "./games/wordle";
 
 const userClient = new WebClient(Bun.env.SLACK_USER_TOKEN);
 
@@ -9,6 +14,13 @@ const app = new App({
     socketMode: true,
     logLevel: LogLevel.DEBUG,
 });
+
+const games = {
+    tic_tac_toe: TicTacToe,
+    minesweeper: Minesweeper,
+    number_guesser: NumberGuesser,
+    wordle: Wordle,
+};
 
 // when alisa sends a message
 app.message(async (event) => {
@@ -49,10 +61,178 @@ app.event('member_left_channel', async ({ event, client, logger }) => {
     }
 });
 
+// play command
+app.command("/play", async ({ ack, body, client }) => {
+    await ack();
+    await client.views.open({
+        trigger_id: body.trigger_id,
+        view: {
+            type: "modal",
+            callback_id: "play_modal",
+            title: {
+                type: "plain_text",
+                text: "games"
+            },
+            close: {
+                type: "plain_text",
+                text: "cancel",
+            },
+            blocks: [
+                {
+                    type: "header",
+                    text: {
+                        type: "plain_text",
+                        text: "game selection"
+                    },
+                },
+                {
+                    type: "context",
+                    elements: [
+                        {
+                            type: "plain_text",
+                            text: "what game would you like to play? select a game below to get started!"
+                        }
+                    ]
+                },
+                {
+                    type: "card",
+                    icon: {
+                        type: "image",
+                        image_url: ".images/minesweeper.png",
+                        alt_text: "minesweeper"
+                    },
+                    title: {
+                        type: "mrkdwn",
+                        text: "minesweeper",
+                        verbatim: false
+                    },
+                    subtitle: {
+                        type: "mrkdwn",
+                        text: "eliminate the mines",
+                        verbatim: false
+                    },
+                    actions: [
+                        {
+                            type: "button",
+                            text: {
+                                type: "plain_text",
+                                text: "play"
+                            },
+                            action_id: "select_game",
+                            value: "minesweeper"
+                        }
+                    ]
+                },
+                {
+                    type: "card",
+                    icon: {
+                        type: "image",
+                        image_url: "./images/number_guesser.png",
+                        alt_text: "number guesser"
+                    },
+                    title: {
+                        type: "mrkdwn",
+                        text: "number guesser",
+                        verbatim: false
+                    },
+                    subtitle: {
+                        type: "mrkdwn",
+                        text: "guess the number",
+                        verbatim: false
+                    },
+                    actions: [
+                        {
+                            type: "button",
+                            text: {
+                                type: "plain_text",
+                                text: "play"
+                            },
+                            action_id: "select_game",
+                            value: "number_guesser"
+                        }
+                    ]
+                },
+                {
+                    type: "card",
+                    icon: {
+                        type: "image",
+                        image_url: "./images/tic_tac_toe.png",
+                        alt_text: "tic tac toe"
+                    },
+                    title: {
+                        type: "mrkdwn",
+                        text: "tic tac toe",
+                        verbatim: false
+                    },
+                    subtitle: {
+                        type: "mrkdwn",
+                        text: "tic, tac, and toe",
+                        verbatim: false
+                    },
+                    actions: [
+                        {
+                            type: "button",
+                            text: {
+                                type: "plain_text",
+                                text: "play"
+                            },
+                            action_id: "select_game",
+                            value: "tic_tac_toe"
+                        }
+                    ]
+                },
+                {
+                    type: "card",
+                    icon: {
+                        type: "image",
+                        image_url: "./images/wordle.png",
+                        alt_text: "wordle"
+                    },
+                    title: {
+                        type: "mrkdwn",
+                        text: "wordle",
+                        verbatim: false
+                    },
+                    subtitle: {
+                        type: "mrkdwn",
+                        text: "guess the word",
+                        verbatim: false
+                    },
+                    actions: [
+                        {
+                            type: "button",
+                            text: {
+                                type: "plain_text",
+                                text: "play"
+                            },
+                            action_id: "select_game",
+                            value: "wordle"
+                        }
+                    ]
+                }
+            ]
+        },
+    });
+});
+
+app.action<BlockButtonAction>("select_game", async ({ ack, body, client, action }) => {
+    await ack();
+    const gameId = action.value;
+    const game = games[gameId as keyof typeof games];
+    if (!game) {
+        console.error(`unknown game: ${gameId}`);
+        return;
+    }
+    await client.views.update({
+        view_id: body.view!.id,
+        hash: body.view!.hash,
+        view: game.createView() as any,
+    });
+});
+
 await app.start();
 
 // to do:
-// send welcome message when user joins channel
 // play music when users are in huddle
 // track amount of time that users are in huddles
 
@@ -68,3 +248,5 @@ await app.start();
 // messing around with custom emojis --> apples to apples but with custom slack emojis
 // changing statuses?
 // dialogs? --> they act as modals where you can input information
+
+// the /play command should: send a message with buttons in it
