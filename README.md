@@ -1,4 +1,4 @@
-# Alisa-Bot
+# Alisa Bot
 
 Alisa Bot (wow, me) is a Slack selfbot built using TypeScript, Bun, Supabase, and Slack Bolt. It has some pretty cool features you can try out yourself on the Hack Club Slack!
 
