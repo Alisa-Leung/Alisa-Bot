@@ -10,8 +10,10 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@slack/bolt": "^5.0.0",
-    "@slack/web-api": "^8.0.0",
-    "@slack/socket-mode": "^3.0.0"
+    "@slack/bolt": "4",
+    "@slack/socket-mode": "2",
+    "@slack/web-api": "7",
+    "@supabase/supabase-js": "^2.110.6",
+    "undici": "^7"
   }
 }

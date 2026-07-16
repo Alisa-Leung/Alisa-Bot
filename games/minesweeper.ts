@@ -2,7 +2,7 @@ export const Minesweeper = {
     createView,
 };
 
-function createView(){
+function createView(userId: string){
     return {
         type: "modal",
         callback_id: "minesweeper",

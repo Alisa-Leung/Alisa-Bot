@@ -2,7 +2,7 @@ export const TicTacToe = {
     createView,
 };
 
-function createView() {
+function createView(userId: string) {
     return {
         type: "modal",
         callback_id: "tic_tac_toe",

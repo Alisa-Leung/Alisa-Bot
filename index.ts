@@ -1,5 +1,6 @@
 import { App, LogLevel, type BlockButtonAction } from "@slack/bolt";
 import { WebClient } from "@slack/web-api"
+import type { ModalView } from "@slack/types"
 
 import { TicTacToe } from "./games/ticTacToe";
 import { Minesweeper } from "./games/minesweeper";
@@ -26,6 +27,7 @@ const games = {
 app.message(async (event) => {
     console.log("message event");
     console.dir(event.payload, { depth: null });
+    if (event.payload.channel !== 'C0BHGKC7P51') return;
     if (event.payload.subtype) return;
     if (event.payload.user !== 'U08STAQPGUR') return;
     await event.say("wow what a cool message");
@@ -61,10 +63,8 @@ app.event('member_left_channel', async ({ event, client, logger }) => {
     }
 });
 
-// play command
-app.command("/play", async ({ ack, body, client }) => {
-    await ack();
-    await client.views.open({
+function playCommand(body: any): { trigger_id: string; view: ModalView; } {
+    return {
         trigger_id: body.trigger_id,
         view: {
             type: "modal",
@@ -95,10 +95,13 @@ app.command("/play", async ({ ack, body, client }) => {
                     ]
                 },
                 {
+                    type: "divider"
+                },
+                {
                     type: "card",
                     icon: {
                         type: "image",
-                        image_url: ".images/minesweeper.png",
+                        image_url: "https://cdn.hackclub.com/019f698a-2eed-742a-b6a8-fe4ebc178833/minesweeper.png",
                         alt_text: "minesweeper"
                     },
                     title: {
@@ -127,7 +130,7 @@ app.command("/play", async ({ ack, body, client }) => {
                     type: "card",
                     icon: {
                         type: "image",
-                        image_url: "./images/number_guesser.png",
+                        image_url: "https://cdn.hackclub.com/019f698a-322e-7158-ac41-b0b89224384b/number_guesser.png",
                         alt_text: "number guesser"
                     },
                     title: {
@@ -156,7 +159,7 @@ app.command("/play", async ({ ack, body, client }) => {
                     type: "card",
                     icon: {
                         type: "image",
-                        image_url: "./images/tic_tac_toe.png",
+                        image_url: "https://cdn.hackclub.com/019f698a-2b6a-776a-aae8-1113e24c9ffa/tic_tac_toe.png",
                         alt_text: "tic tac toe"
                     },
                     title: {
@@ -185,7 +188,7 @@ app.command("/play", async ({ ack, body, client }) => {
                     type: "card",
                     icon: {
                         type: "image",
-                        image_url: "./images/wordle.png",
+                        image_url: "https://cdn.hackclub.com/019f698a-377b-76f4-ad29-8d45146f018b/wordle.png",
                         alt_text: "wordle"
                     },
                     title: {
@@ -212,11 +215,32 @@ app.command("/play", async ({ ack, body, client }) => {
                 }
             ]
         },
+    }
+}
+
+// play command
+app.command("/play", async ({ ack, body, client }) => {
+    await ack();
+    client.views.open(playCommand(body)).catch(console.error);
+});
+
+// game handler
+app.action<BlockButtonAction>("select_game", async ({ ack, body, client, action }) => {
+    ack();
+    const game = games[action.value as keyof typeof games];
+    if (!game) {
+        return;
+    }
+    const view = game.createView(body.user.id);
+    await client.views.update({
+        view_id: body.view!.id,
+        hash: body.view!.hash,
+        view: view as any,
     });
 });
 
-app.action<BlockButtonAction>("select_game", async ({ ack, body, client, action }) => {
-    await ack();
+app.action<BlockButtonAction>("play_again", async ({ ack, body, client, action }) => {
+    ack();
     const gameId = action.value;
     const game = games[gameId as keyof typeof games];
     if (!game) {
@@ -226,8 +250,13 @@ app.action<BlockButtonAction>("select_game", async ({ ack, body, client, action 
     await client.views.update({
         view_id: body.view!.id,
         hash: body.view!.hash,
-        view: game.createView() as any,
+        view: game.createView(body.user.id) as any
     });
+})
+
+app.view("number_guesser", async ({ ack, body, view, client }) => {
+    console.log("view handler called");
+    await NumberGuesser.handleGuess({ ack, body, view, client });
 });
 
 await app.start();
