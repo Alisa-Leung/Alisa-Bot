@@ -27,18 +27,31 @@ app.event('member_joined_channel', async ({ event, client, logger }) => {
         if (channelId !== 'C0BHGKC7P51') return;
         await client.chat.postMessage({
             channel: channelId,
-            text: `welcome to the channel, <@${userId}>!`,
+            text: `welcome to the channel, <@${userId}>! :D`,
         });
     } catch (error) {
         logger.error('error handling member_joined_channel event: ', error);
     }
 });
 
+// when someone leaves the channel
+app.event('member_left_channel', async ({ event, client, logger }) => {
+    try {
+        const userId = event.user;
+        const channelId = event.channel;
+        if (channelId !== 'C0BHGKC7P51') return;
+        await client.chat.postMessage({
+            channel: channelId,
+            text: `bye bye, <@${userId}> :(`,
+        });
+    } catch (error) {
+        logger.error('error handling member_left_channel event: ', error);
+    }
+});
+
 await app.start();
 
 // to do:
-// join slack huddle when user joins huddle
-// leave slack huddle when user leaves huddle
 // send welcome message when user joins channel
 // play music when users are in huddle
 // track amount of time that users are in huddles
