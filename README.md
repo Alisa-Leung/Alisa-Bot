@@ -8,9 +8,6 @@ Alisa Bot (wow, me) is a Slack selfbot built using TypeScript, Bun, Supabase, an
 * Slash command for popup games
 * Slack canvas leaderboard built using Supabase
 
-### Requirements:
-
-
 ### Instructions for Selfhosting:
 1. Clone the repository
 ```
