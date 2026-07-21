@@ -10,8 +10,8 @@ import { Wordle } from "./games/wordle";
 const userClient = new WebClient(Bun.env.SLACK_USER_TOKEN);
 
 const app = new App({
-    token: process.env.SLACK_USER_TOKEN,
-    appToken: process.env.SLACK_APP_TOKEN,
+    token: Bun.env.SLACK_USER_TOKEN,
+    appToken: Bun.env.SLACK_APP_TOKEN,
     socketMode: true,
     logLevel: LogLevel.DEBUG,
 });
@@ -29,7 +29,7 @@ app.message(async (event) => {
     console.dir(event.payload, { depth: null });
     if (event.payload.channel !== 'C0BHGKC7P51') return;
     if (event.payload.subtype) return;
-    if (event.payload.user !== process.env.SLACK_USER_ID) return;
+    if (event.payload.user !== Bun.env.SLACK_USER_ID) return;
     await event.say("wow what a cool message");
 });
 
