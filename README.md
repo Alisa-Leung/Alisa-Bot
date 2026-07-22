@@ -18,13 +18,14 @@ cd Alisa-Bot
 ```
 bun install
 bun add @slack/bolt
-bun add @slack/socket-mode
 bun add @slack/web-api
 bun add @supabase/supabase-js
 ```
 3. Create a Slack app
 * Go to https://api.slack.com/apps and create a new app
-* Enable Socket Mode, Event Subscriptions, and Slash Commands
+* Deploy the bot somewhere accessible over HTTPS ([I used Hack Club Nest](https://hackclub.app/))
+* Enable Event Subscriptions, Interactivity & Shortcuts, and Slash Commands
+ * Configure the Request URL as `https://YOUR_DOMAIN/slack/events` for all of these Slack interactions
 * OAuth & Permissions > Bot Token Scopes:
   * channels:history
   * commands
@@ -40,11 +41,11 @@ bun add @supabase/supabase-js
   * message.channels
 * Slash Commands:
   * /play
+* Save all of these configurations, and install the app to your workspace
 4. Installation
 * Copy your:
-  * Slack Bot Token
   * Slack User Token
-  * Slack App Token
+  * Slack Signing Secret
 5. Supabase
 * Create a table called `number_guesser` in a new Supabase project
 * Populate the table with the following columns: `user_id [text]`, `username [text]`, and `best_tries [int4]`
@@ -54,9 +55,8 @@ bun add @supabase/supabase-js
 6. Environment Variables
 * Create a `.env` file to store your environment variables, and fill in the following values
 ```
-SLACK_TOKEN = YOUR_SLACK_BOT_TOKEN
 SLACK_USER_TOKEN = YOUR_SLACK_USER_TOKEN
-SLACK_APP_TOKEN = YOUR_SLACK_USER_TOKEN
+SLACK_SIGNING_SECRET = YOUR_SLACK_SIGNING_SECRET
 SLACK_USER_ID = YOUR_SLACK_USER_ID
 SUPABASE_URL = YOUR_SUPABASE_URL
 SUPABASE_SERVICE_ROLE_KEY = YOUR_SUPABASE_SERVICE_ROLE_KEY
