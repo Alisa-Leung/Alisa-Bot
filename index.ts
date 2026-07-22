@@ -9,10 +9,11 @@ import { Wordle } from "./games/wordle";
 
 const userClient = new WebClient(Bun.env.SLACK_USER_TOKEN);
 
+const port = Number(Bun.env.PORT) || 3000;
+
 const app = new App({
     token: Bun.env.SLACK_USER_TOKEN,
-    appToken: Bun.env.SLACK_APP_TOKEN,
-    socketMode: true,
+    signingSecret: Bun.env.SLACK_SIGNING_SECRET,
     logLevel: LogLevel.DEBUG,
 });
 
@@ -271,4 +272,11 @@ app.view("number_guesser", async ({ ack, body, view, client }) => {
     await NumberGuesser.handleGuess({ ack, body, view, client });
 });
 
-await app.start();
+await app.start({
+    port: 3000,
+    host: "0.0.0.0",
+});
+
+console.log("Slack bot listening on port 3000");
+
+process.stdin.resume()
