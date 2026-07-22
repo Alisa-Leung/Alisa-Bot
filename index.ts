@@ -233,12 +233,12 @@ function playCommand(body: any): { trigger_id: string; view: ModalView; } {
 // play command
 app.command("/play", async ({ ack, body, client }) => {
     await ack();
-    client.views.open(playCommand(body)).catch(console.error);
+    await client.views.open(playCommand(body)).catch(console.error);
 });
 
 // game handler
 app.action<BlockButtonAction>("select_game", async ({ ack, body, client, action }) => {
-    ack();
+    await ack();
     const game = games[action.value as keyof typeof games];
     if (!game) {
         return;
@@ -253,7 +253,7 @@ app.action<BlockButtonAction>("select_game", async ({ ack, body, client, action 
 
 // replay
 app.action<BlockButtonAction>("play_again", async ({ ack, body, client, action }) => {
-    ack();
+    await ack();
     const gameId = action.value;
     const game = games[gameId as keyof typeof games];
     if (!game) {

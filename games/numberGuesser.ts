@@ -118,7 +118,7 @@ async function handleGuess({ ack, body, view, client }: { ack: (response?: any) 
     game.attempts++;
     if (guess === game.target) {
         delete activeGames[userId];
-        ack({
+        await ack({
             response_action: "update",
             view: winView(game.attempts)
         });
@@ -126,7 +126,7 @@ async function handleGuess({ ack, body, view, client }: { ack: (response?: any) 
         return;
     }
     let message = guess < game.target ? `too low!\n\n` + `your attempts: ${game.attempts}` : `too high!\n\n` + `your attempts: ${game.attempts}`;
-    ack({
+    await ack({
         response_action: "update",
         view: updateView(message)
     });
