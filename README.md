@@ -23,7 +23,7 @@ bun add @supabase/supabase-js
 ```
 3. Create a Slack app
 * Go to https://api.slack.com/apps and create a new app
-* Deploy the bot somewhere accessible over HTTPS ([I used Hack Club Nest](https://hackclub.app/))
+* Deploy the bot somewhere accessible over HTTPS (I used [Hack Club Nest](https://hackclub.app/))
 * Enable Event Subscriptions, Interactivity & Shortcuts, and Slash Commands
  * Configure the Request URL as `https://YOUR_DOMAIN/slack/events` for all of these Slack interactions
 * OAuth & Permissions > Bot Token Scopes:
